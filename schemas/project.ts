@@ -55,10 +55,28 @@ export default defineType({
   name: 'project',
   title: 'Project',
   type: 'document',
-  fieldsets: [
-    {name: 'logoConfig', title: 'PROJECT LOGO ART DIRECTION', options: {collapsible: true, collapsed: true}},
+groups: [
+    { name: 'logoScaling', title: 'Logo Scaling' }
+  ],  fieldsets: [
+    {name: 'logoConfig', title: 'Project Logo Art Direction', description: 'Scale and offsets per screen size. Empty keeps the default.', options: {collapsible: true, collapsed: true}},
+    {name: 'audioConfig', title: 'Project Sound', options: {collapsible: true, collapsed: true}},
+    {name: 'semanticConfig', title: 'Semantic Credits (SEO / AIO)', options: {collapsible: true, collapsed: true}},
+    {name: 'seoConfig', title: 'Project SEO', options: {collapsible: true, collapsed: true}},
+    {
+      name: 'sectionLoad',
+      title: 'Section Load Order',
+      description: 'Drag to set the order sections play in this project. Close this fold to keep a long list out of the way.',
+      options: {collapsible: true, collapsed: false},
+    },
   ],
   fields: [
+    defineField({
+      name: 'isOffline',
+      title: 'Offline / Draft Mode (Hide from Production)',
+      type: 'boolean',
+      description: 'When enabled (ON), this project is visible on Localhost (localhost:3333) for testing, but HIDDEN from www.noum.studio and sitemaps.',
+      initialValue: false,
+    }),
     defineField({
       name: 'projectKey',
       title: 'Project Key',
@@ -111,30 +129,94 @@ export default defineType({
     // RESPONSIVE LOGO SETTINGS
     ...createResponsiveFields('logo', 'Logo', 'logoConfig'),
 
+// --- RESTORED & UPGRADED THUMBNAIL LOGIC ---
     defineField({
-      name: 'thumbnail',
-      title: 'Thumbnail Image',
-      type: 'image',
-      options: { hotspot: true },
+        name: 'thumbnailImageSource',
+        title: 'Thumbnail Image Source',
+        type: 'string',
+        options: {
+            list: [
+                { title: 'Sanity (Upload directly)', value: 'sanity' },
+                { title: 'External URL (StC Server / Direct Link)', value: 'external' },
+            ],
+            layout: 'radio',
+        },
+        initialValue: 'sanity',
     }),
-    
-    // --- PROJECT AUDIO ---
+    defineField({ 
+        name: 'thumbnail', 
+        title: 'Thumbnail Image (Sanity)', 
+        type: 'image', 
+        options: { hotspot: true },
+        hidden: ({parent}) => parent?.thumbnailImageSource === 'external',
+    }),
+    defineField({
+        name: 'thumbnailImageUrl',
+        title: 'External Thumbnail URL',
+        type: 'url',
+        hidden: ({parent}) => !parent?.thumbnailImageSource || parent?.thumbnailImageSource === 'sanity',
+    }),
+    defineField({
+        name: 'thumbnailVideoSource',
+        title: 'Thumbnail Video Source',
+        type: 'string',
+        options: {
+            list: [
+                { title: 'Sanity (Small MP4/GIF)', value: 'sanity' },
+                { title: 'StC Server (Direct MP4)', value: 'external' },
+                { title: 'Vimeo', value: 'vimeo' },
+                { title: 'YouTube', value: 'youtube' },
+            ]
+        },
+        description: 'Choose "Sanity" for small files (<5MB). For high-end backgrounds, use Vimeo or StC Server.'
+    }),
+    defineField({
+        name: 'thumbnailVideo',
+        title: 'Thumbnail Video File (Sanity)',
+        type: 'file',
+        hidden: ({ parent }) => parent?.thumbnailVideoSource !== 'sanity',
+        options: { accept: 'video/*' }
+    }),
+    defineField({
+        name: 'thumbnailVideoUrl',
+        title: 'Thumbnail Video URL (Vimeo / YouTube / StC)',
+        type: 'url',
+        hidden: ({ parent }) => !['vimeo', 'youtube', 'external'].includes(parent?.thumbnailVideoSource)
+    }),
+
+// --- PROJECT AUDIO ---
+    defineField({
+        name: 'projectAudioSource',
+        title: 'Project Audio Source',
+        type: 'string',
+        options: { list: [{ title: 'Sanity (Upload directly)', value: 'sanity' }, { title: 'External URL (StC Server / Direct Link)', value: 'external' }], layout: 'radio' },
+        fieldset: 'audioConfig',
+    }),
     defineField({
         name: 'projectAudio',
-        title: 'Project Background Audio',
+        title: 'Project Background Audio (Sanity)',
         type: 'file',
         description: 'Audio file (MP3/WAV). Only plays if NO global audio is set in Site Config.',
         options: { accept: 'audio/*' },
+        hidden: ({parent}) => parent?.projectAudioSource === 'external',
+        fieldset: 'audioConfig',
+    }),
+    defineField({
+        name: 'projectAudioUrl',
+        title: 'External Project Audio URL',
+        type: 'url',
+        description: 'Paste the direct link to the .mp3 or .wav file.',
+        hidden: ({parent}) => !parent?.projectAudioSource || parent?.projectAudioSource === 'sanity',
+        fieldset: 'audioConfig',
     }),
     defineField({
         name: 'projectAudioVolume',
         title: 'Project Audio Volume',
         type: 'number',
-        description: 'Volume level from 0 to 1 (default 0.5).',
-        initialValue: 0.5,
+        description: 'Volume level from 0 to 1.',
         validation: Rule => Rule.min(0).max(1),
+        fieldset: 'audioConfig',
     }),
-
     defineField({
       name: 'filters',
       title: 'Filter Tags',
@@ -143,10 +225,46 @@ export default defineType({
       options: { layout: 'tags' },
     }),
     defineField({
+      name: 'client',
+      title: 'Client',
+      type: 'string',
+      fieldset: 'semanticConfig',
+    }),
+    defineField({
+      name: 'industry',
+      title: 'Industry',
+      type: 'string',
+      fieldset: 'semanticConfig',
+    }),
+    defineField({
+      name: 'year',
+      title: 'Year',
+      type: 'string',
+      description: 'e.g. 2026 or 2024–2026',
+      fieldset: 'semanticConfig',
+    }),
+    defineField({
+      name: 'services',
+      title: 'Services',
+      type: 'array',
+      of: [{type: 'string'}],
+      options: {layout: 'tags'},
+      description: 'e.g. Creative Direction, Motion, Design',
+      fieldset: 'semanticConfig',
+    }),
+    defineField({
+      name: 'seo',
+      title: 'SEO / AIO',
+      type: 'seoObject',
+      fieldset: 'seoConfig',
+    }),
+    defineField({
       name: 'sections',
       title: 'Sections',
       type: 'array',
       of: [{type: 'reference', to: [{type: 'section'}]}],
+      fieldset: 'sectionLoad',
     }),
+    
   ],
 });

@@ -2,19 +2,49 @@
 import {defineConfig} from 'sanity'
 import {structureTool} from 'sanity/structure'
 import {visionTool} from '@sanity/vision'
-// This path MUST be plural to match your folder
-import {schemaTypes} from './schemas' 
+import {schemaTypes} from './schemas'
+import {ActiveSettingsField, ActiveSettingsInput} from './schemas/activeSettingsDot'
+import {structure} from './structure'
+import './studio.css'
 
 export default defineConfig({
   name: 'default',
-  title: 'StC Website',
+  title: process.env.SANITY_STUDIO_TITLE || 'StC Website',
 
-  projectId: 'l4o0lkxd',
-  dataset: 'production',
+  projectId: process.env.SANITY_STUDIO_PROJECT_ID || 'l4o0lkxd',
+  dataset: process.env.SANITY_STUDIO_DATASET || 'production',
 
-  plugins: [structureTool(), visionTool()],
+  plugins: [structureTool({structure}), visionTool()],
 
+  form: {
+    components: {
+      field: ActiveSettingsField,
+      input: ActiveSettingsInput,
+    },
+  },
+    
   schema: {
     types: schemaTypes,
+    templates: (previous) => [
+      ...previous,
+      {
+        id: 'section-for-project',
+        title: 'Section',
+        schemaType: 'section',
+        parameters: [{name: 'projectKey', type: 'string'}],
+        value: (params: {projectKey?: string}) => ({
+          projectKey: params.projectKey,
+        }),
+      },
+      {
+        id: 'section-site-wide',
+        title: 'Site-wide section',
+        schemaType: 'section',
+        value: {
+          projectKey: undefined,
+          bgColor: '#FFFFFF',
+        },
+      },
+    ],
   },
 })

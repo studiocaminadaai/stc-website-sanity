@@ -1,24 +1,22 @@
-import { createClient } from '@sanity/client';
 import axios from 'axios';
+import * as dotenv from 'dotenv';
+
+// Load variables from .env file
+dotenv.config();
 
 // --- Sanity Project Configuration ---
-// ⚠️ IMPORTANT: Replace these placeholders with your actual Sanity project details!
-const projectId = 'l4o0lkxd'; // e.g., 'ab1c2d3e'
-const dataset = 'production';
-const apiVersion = 'v2024-05-01'; // Use a recent date
-const token = 'skcwnSbxW8qgb8fmqCUPrsbA1CHlsGdKG5wBEydniqZrnzW7gJa5t53KtBKArGt0zsxuyP74zgE1ONNqHTYt5qyfDCEkyYd8jELiZo2RXgVgLTwrBGW54JJXXkhZwfPQSSPckOIkn3LWnTksVStSqsiPsKBlyWneo7okYkNaetu6Mdaospgb'; // ⚠️ Must be a token with 'editor' or 'deploy' permissions
+const projectId = process.env.SANITY_STUDIO_PROJECT_ID || 'l4o0lkxd'; 
+const token = process.env.SANITY_AUTH_TOKEN;
 
-// --- Ngrok Endpoint Configuration ---
+if (!token) {
+    console.error('❌ Security Error: SANITY_AUTH_TOKEN environment variable is missing.');
+    process.exit(1);
+}
+
+// --- Endpoints ---
 const ngrokApiUrl = 'http://127.0.0.1:4040/api/tunnels';
-
-// --- Sanity Management Client ---
-const sanityClient = createClient({
-    projectId: projectId,
-    dataset: dataset,
-    apiVersion: apiVersion,
-    token: token,
-    useCdn: false,
-});
+// Route directly to the Management API, not the Content API
+const sanityManagementUrl = `https://api.sanity.io/v2023-01-01/projects/${projectId}/cors`;
 
 async function updateSanityCors() {
     console.log('--- Starting Sanity CORS Update ---');
@@ -33,7 +31,6 @@ async function updateSanityCors() {
             return;
         }
 
-        // Find the public HTTPS URL (Ngrok can sometimes start an HTTP one too)
         const publicUrl = tunnels.find((t: any) => t.proto === 'https')?.public_url;
 
         if (!publicUrl) {
@@ -42,37 +39,33 @@ async function updateSanityCors() {
         }
 
         console.log(`✅ Found new Ngrok URL: ${publicUrl}`);
+        console.log('⏳ Adding to Sanity CORS...');
 
-        // 2. Get the current list of CORS origins
-        const currentCorsResponse = await sanityClient.request({
-            url: `/projects/${projectId}/cors`,
-            method: 'GET',
-        });
+  // 2. Add the URL to Sanity's CORS list via POST
+        await axios.post(
+            sanityManagementUrl,
+            { origin: publicUrl, allowCredentials: true },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            }
+        );
 
-        // 3. Prepare the new CORS list
-        // Filter out any old Ngrok tunnels and keep any permanent origins (like localhost)
-        const permanentOrigins = currentCorsResponse
-            .filter((c: any) => !c.origin.includes('ngrok-free.app'))
-            .map((c: any) => c.origin);
+        console.log(`✅ Success! ${publicUrl} has been authorized in Sanity.`);
 
-        const newOrigins = [...permanentOrigins, publicUrl];
-
-        // 4. Update the CORS origins via the Sanity Management API
-        // NOTE: This updates ALL CORS entries, replacing the old list entirely.
-        await sanityClient.request({
-            url: `/projects/${projectId}/cors`,
-            method: 'PUT',
-            body: newOrigins,
-        });
-
-        console.log('--- Successfully Updated CORS Origins ---');
-        console.log('New allowed origins for Sanity:', newOrigins);
-
-    } catch (error) {
+ } catch (error: any) {
         if (axios.isAxiosError(error) && error.code === 'ECONNREFUSED') {
             console.error(`❌ Connection Refused: Could not connect to the Ngrok API at ${ngrokApiUrl}. Is Ngrok running?`);
         } else {
-            console.error('❌ An unexpected error occurred during CORS update:', error);
+  const sanityMsg = error.response?.data?.message || error.message;
+            // If Sanity says it's already there, that's a success!
+            if (sanityMsg && sanityMsg.includes('Duplicate origin already exists')) {
+                console.log('✅ Success! The Ngrok URL is already authorized in Sanity.');
+            } else {
+                console.error('❌ Sanity API Error:', sanityMsg);
+            }
         }
     }
 }

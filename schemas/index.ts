@@ -1,13 +1,17 @@
-// stc-website-sanity/schemas/index.ts ID 212.2
+// stc-website-sanity/schemas/index.ts
 import project from './project'
 import section from './section'
 import mediaItem from './mediaItem'
 import twoColumnMedia from './twoColumnMedia'
 import threeColumnMedia from './threeColumnMedia'
-import breakType from './break'
+import fourColumnMedia from './fourColumnMedia'
+import modularMediaItem from './modularMediaItem'
 import siteConfig from './siteConfig'
 import fontResource from './fontResource'
-import effectResource from './effectResource' // NEW
+import effectResource from './effectResource'
+import customSpacing from './customSpacing' 
+import awardOverlay from './awardOverlay'
+import seoObject from './seoObject'
 
 export const schemaTypes = [
   // Documents
@@ -15,11 +19,15 @@ export const schemaTypes = [
   section,
   siteConfig,
   fontResource,
-  effectResource, // Added
+  effectResource,
   
   // Objects
+  seoObject,
   mediaItem,
   twoColumnMedia,
   threeColumnMedia,
-  breakType,
+  fourColumnMedia,
+  modularMediaItem,
+  customSpacing, 
+  awardOverlay,
 ]

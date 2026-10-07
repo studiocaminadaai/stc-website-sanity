@@ -1,4 +1,4 @@
-// stc-website-sanity/schemas/fontResource.ts ID 194.50
+// stc-website-sanity/schemas/fontResource.ts ID 194.51
 import {defineField, defineType} from 'sanity'
 
 export default defineType({
@@ -10,14 +10,14 @@ export default defineType({
       name: 'title',
       title: 'Display Name',
       type: 'string',
-      description: 'Internal label for YOU (e.g., "SangBleu Empire Regular").',
+      description: 'Internal label for YOU (e.g., "Inter Bold" or "SangBleu Empire Regular").',
       validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'family',
       title: 'CSS Font Family Name',
       type: 'string',
-      description: 'IMPORTANT: Use the EXACT SAME name here for both Regular and Italic entries (e.g., "SangBleu Empire") to group them automatically.',
+      description: 'IMPORTANT: Use the EXACT SAME name here for all cuts of the same font (e.g., "Inter") so the browser groups them.',
       validation: (Rule) => Rule.required(),
     }),
     defineField({
@@ -52,13 +52,12 @@ export default defineType({
       description: 'Upload the older .woff file here (Optional, for older browsers).'
     }),
 
-    // --- STYLE DEFINITIONS (Cleaned Up) ---
-    // Removed the old 'weightStyle' string field to prevent confusion.
-    
+    // --- STYLE DEFINITIONS (Unhidden for all providers) ---
     defineField({
       name: 'fontWeight',
       title: 'Font Weight',
       type: 'string',
+      description: 'Select the weight this specific resource represents.',
       options: {
         list: [
           {title: '100 - Thin', value: '100'},
@@ -73,7 +72,6 @@ export default defineType({
         ]
       },
       initialValue: '400',
-      hidden: ({parent}) => parent?.provider !== 'custom',
     }),
     defineField({
       name: 'fontStyle',
@@ -86,7 +84,6 @@ export default defineType({
         ]
       },
       initialValue: 'normal',
-      hidden: ({parent}) => parent?.provider !== 'custom',
     }),
     
     // EXTERNAL LINKS
@@ -95,7 +92,7 @@ export default defineType({
       title: 'External Embed URL',
       type: 'url',
       hidden: ({parent}) => parent?.provider === 'custom',
-      description: 'The href URL for Google or Adobe (e.g. https://use.typekit.net/xyz.css).'
+      description: 'The href URL for Google or Adobe (e.g. https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap).'
     }),
   ],
 })

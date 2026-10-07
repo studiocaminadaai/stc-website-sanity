@@ -1,0 +1,49 @@
+.stc-accordion-note {
+  margin: 0 0 1.25em;
+  color: var(--card-muted-fg-color);
+  font-size: 0.8125rem;
+  line-height: 1.4;
+}
+
+/* Keep document/object forms on flex so array lists stay intact.
+   Sanity's CSS grid + our earlier gap rules pulled the last drag item
+   below "+ Add item". */
+.stc-object-members {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.stc-object-members > * {
+  min-width: 0;
+  width: 100%;
+}
+
+/* Screen-size folds live in one cell so parent gap stays between
+   description / fields and the pack, not between Desktop / Laptop / … */
+.stc-bp-packs,
+.stc-nested-packs {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.stc-bp-packs > *,
+.stc-nested-packs > * {
+  margin-top: 0 !important;
+  margin-bottom: 0;
+}
+
+/* Open deep fold: one empty row after its last field, before the next title */
+.stc-bp-packs > *:has([data-stc-open]),
+.stc-nested-packs > *:has([data-stc-open]) {
+  margin-bottom: 1.5em !important;
+}
+
+/* Extra empty row when a field, dropdown, or text is followed by an accordion */
+.stc-object-members > * + *:has([data-stc-accordion='group']),
+.stc-object-members > * + *:has(.stc-accordion-group),
+.stc-object-members > * + [data-stc-accordion='group'],
+.stc-object-members > * + .stc-accordion-group {
+  margin-top: 0.75rem;
+}

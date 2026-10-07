@@ -1,0 +1,4 @@
+# PROJECT CATHEDRAL: SANITY CMS RULES
+- SCHEMA INTEGRITY: Never break, rename, or drop fields from core schemas: project, section, mediaItem, threeColumnMedia, twoColumnMedia, buttonStateConfig, customSpacing, siteConfig.
+- ENVIRONMENT: Sanity v3 (Edge CDN enabled). Project ID: idoh4jie | Dataset: oWiKweigy.
+- STRUCTURE: Maintain structure-sanity.txt configurations and studio definitions.
