@@ -55,6 +55,7 @@ const SECTION_LOGO_FIELDSET_SET = new Set<string>(SECTION_LOGO_FIELDSETS)
 
 const MEDIA_ITEM_SINGLE_FIELDSETS = [
   'cover',
+  'stillZoom',
   'endFrame',
   'video',
   'sequence',
