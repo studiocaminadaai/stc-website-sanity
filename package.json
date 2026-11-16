@@ -6,12 +6,20 @@
   "main": "package.json",
   "license": "UNLICENSED",
   "scripts": {
-    "dev": "sanity dev --port 3334",
+    "dev": "echo 'Pick a site: npm run dev:noum  or  npm run dev:orem' && exit 1",
+    "dev:noum": "SANITY_ACTIVE_ENV=noum sanity dev --port 3334",
+    "dev:orem": "SANITY_ACTIVE_ENV=orem sanity dev --port 3334",
     "start": "sanity start --port 3334",
     "build": "sanity build",
-    "deploy": "sanity deploy",
+    "build:noum": "SANITY_ACTIVE_ENV=noum sanity build",
+    "build:orem": "SANITY_ACTIVE_ENV=orem sanity build",
+    "deploy": "echo 'Pick a site: npm run deploy:noum  or  npm run deploy:orem' && exit 1",
+    "deploy:noum": "SANITY_ACTIVE_ENV=noum sanity deploy",
+    "deploy:orem": "SANITY_ACTIVE_ENV=orem sanity deploy",
     "deploy-graphql": "sanity graphql deploy",
-    "update-cors": "npx ts-node ./update-cors.ts"
+    "update-cors": "echo 'Pick a site: npm run update-cors:noum  or  npm run update-cors:orem' && exit 1",
+    "update-cors:noum": "SANITY_ACTIVE_ENV=noum npx ts-node ./update-cors.ts",
+    "update-cors:orem": "SANITY_ACTIVE_ENV=orem npx ts-node ./update-cors.ts"
   },
   "keywords": [
     "sanity"

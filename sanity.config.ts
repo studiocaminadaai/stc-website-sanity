@@ -7,11 +7,18 @@ import {ActiveSettingsField, ActiveSettingsInput} from './schemas/activeSettings
 import {structure} from './structure'
 import './studio.css'
 
+// Set by .env.noum / .env.orem via SANITY_ACTIVE_ENV (see package.json scripts).
+// No fallback: a missing ID must stop the Studio, not silently open the other site.
+const projectId = process.env.SANITY_STUDIO_PROJECT_ID
+if (!projectId) {
+  throw new Error('No site selected. Use: npm run dev:noum  or  npm run dev:orem')
+}
+
 export default defineConfig({
   name: 'default',
   title: process.env.SANITY_STUDIO_TITLE || 'StC Website',
 
-  projectId: process.env.SANITY_STUDIO_PROJECT_ID || 'l4o0lkxd',
+  projectId,
   dataset: process.env.SANITY_STUDIO_DATASET || 'production',
 
   plugins: [structureTool({structure}), visionTool()],

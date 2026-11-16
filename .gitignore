@@ -29,3 +29,6 @@
 *.local
 .aider*
 .env
+
+# Per-site env files (contain tokens) - never commit
+.env.*

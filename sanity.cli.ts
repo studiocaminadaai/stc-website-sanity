@@ -1,21 +1,25 @@
 // sanity.cli.ts
 import {defineCliConfig} from 'sanity/cli'
+import {config as loadEnvFile} from 'dotenv'
 
-// --- ACTIVE PROJECT CONFIGURATION ---
-// Toggle comment (//) to switch between NOUM and OREM
+// Which site is active comes from SANITY_ACTIVE_ENV, set by the npm scripts:
+//   npm run dev:noum / deploy:noum  -> .env.noum
+//   npm run dev:orem / deploy:orem  -> .env.orem
+// The file is loaded here explicitly so this config never depends on load order.
+const activeEnv = process.env.SANITY_ACTIVE_ENV
+if (activeEnv) {
+  loadEnvFile({path: `.env.${activeEnv}`, quiet: true})
+}
 
-// 1. NOUM SETTINGS (Currently Active)
-const ACTIVE_PROJECT_ID = 'idoh4jie'
-const ACTIVE_STUDIO_HOST = 'noum'
+const projectId = process.env.SANITY_STUDIO_PROJECT_ID
+const dataset = process.env.SANITY_STUDIO_DATASET || 'production'
+const studioHost = process.env.SANITY_STUDIO_HOST
 
-// 2. OREM SETTINGS
-// const ACTIVE_PROJECT_ID = 'l4o0lkxd'
-// const ACTIVE_STUDIO_HOST = 'orem'
+if (!projectId) {
+  throw new Error('No site selected. Use: npm run dev:noum  or  npm run dev:orem (deploy:noum / deploy:orem)')
+}
 
 export default defineCliConfig({
-  api: {
-    projectId: ACTIVE_PROJECT_ID,
-    dataset: 'production'
-  },
-  studioHost: ACTIVE_STUDIO_HOST
+  api: {projectId, dataset},
+  studioHost,
 })

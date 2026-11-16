@@ -1,12 +1,24 @@
 import axios from 'axios';
 import * as dotenv from 'dotenv';
 
-// Load variables from .env file
-dotenv.config();
+// Load the active site's env file (.env.noum / .env.orem), chosen by SANITY_ACTIVE_ENV
+// via npm run update-cors:noum / update-cors:orem.
+const activeEnv = process.env.SANITY_ACTIVE_ENV;
+if (!activeEnv) {
+    console.error('❌ No site selected. Use: npm run update-cors:noum  or  npm run update-cors:orem');
+    process.exit(1);
+}
+dotenv.config({ path: `.env.${activeEnv}`, quiet: true });
 
 // --- Sanity Project Configuration ---
-const projectId = process.env.SANITY_STUDIO_PROJECT_ID || 'l4o0lkxd'; 
+const projectId = process.env.SANITY_STUDIO_PROJECT_ID;
 const token = process.env.SANITY_AUTH_TOKEN;
+
+if (!projectId) {
+    console.error(`❌ SANITY_STUDIO_PROJECT_ID missing in .env.${activeEnv}`);
+    process.exit(1);
+}
+console.log(`🎯 Target: ${process.env.SANITY_STUDIO_TITLE || activeEnv} (${projectId})`);
 
 if (!token) {
     console.error('❌ Security Error: SANITY_AUTH_TOKEN environment variable is missing.');
