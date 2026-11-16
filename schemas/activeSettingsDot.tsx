@@ -66,7 +66,7 @@ const MEDIA_ITEM_SINGLE_FIELDSETS = [
 ] as const
 const MEDIA_ITEM_SINGLE_FIELDSET_SET = new Set<string>(MEDIA_ITEM_SINGLE_FIELDSETS)
 
-const MEDIA_ITEM_CAROUSEL_HEAD = new Set(['carouselSlides', 'carouselMouseScroll', 'carouselMode'])
+const MEDIA_ITEM_CAROUSEL_HEAD = new Set(['carouselSlides', 'carouselMouseScroll', 'carouselClickArrows', 'carouselMode'])
 
 const BREAKPOINTS = [
   {key: 'MobileLandscapeSmall', title: 'Mobile Landscape Small (Height Under 400px)'},
@@ -677,7 +677,8 @@ const groupRootBreakpointRuns = (members: ObjectMember[], props: ObjectInputProp
   }
 
   for (const member of members) {
-    if (member.kind === 'field' && matchBreakpointKey(member.name) && isFieldVisible(member)) {
+    if (member.kind === 'field' && matchBreakpointKey(member.name)) {
+      if (!isFieldVisible(member)) continue
       run.push(member)
       continue
     }

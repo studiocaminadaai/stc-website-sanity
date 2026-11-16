@@ -17,6 +17,63 @@ const carouselEnterOptions = [
   {title: 'From bottom', value: 'from-bottom'},
 ]
 
+const STILL_OFFSET_BREAKPOINTS = [
+  {key: 'Desktop', title: 'Desktop (> 1600px)'},
+  {key: 'Laptop', title: 'Laptop (1025px – 1600px)'},
+  {key: 'TabletLandscape', title: 'Tablet Landscape (901px – 1024px)'},
+  {key: 'TabletPortrait', title: 'Tablet Portrait (769px – 900px)'},
+  {key: 'MobileLandscape', title: 'Mobile Landscape Big'},
+  {key: 'MobileLandscapeSmall', title: 'Mobile Landscape Small'},
+  {key: 'MobilePortrait', title: 'Mobile Portrait Big'},
+  {key: 'MobilePortraitSmall', title: 'Mobile Portrait Small'},
+] as const
+
+const stillOffsetFields = () => {
+  const shared = [
+    defineField({
+      name: 'stillOffsetX',
+      title: 'Left / Right offset',
+      type: 'string',
+      fieldset: 'stillZoom',
+      description: 'Nudge this icon off the center of its cell. Positive moves right, negative moves left. Examples: 12px, -2vw. A bare number is pixels. Empty stays centered. A device setting below replaces this on that screen only.',
+    }),
+    defineField({
+      name: 'stillOffsetY',
+      title: 'Up / Down offset',
+      type: 'string',
+      fieldset: 'stillZoom',
+      description: 'Positive moves down, negative moves up. Examples: -8px, 1vh. Empty stays centered. A device setting below replaces this on that screen only.',
+    }),
+  ]
+  return [
+    ...shared,
+    ...STILL_OFFSET_BREAKPOINTS.flatMap((bp) => [
+      defineField({
+        name: `stillZoom${bp.key}`,
+        title: `Size - ${bp.title}`,
+        type: 'number',
+        fieldset: 'stillZoom',
+        description: 'Replaces the default zoom above on this screen only. 100 is the shared icon size. 200 is twice as big. Empty keeps the default zoom.',
+        validation: (Rule) => Rule.min(1).max(400),
+      }),
+      defineField({
+        name: `stillOffsetX${bp.key}`,
+        title: `Left / Right - ${bp.title}`,
+        type: 'string',
+        fieldset: 'stillZoom',
+        description: 'Replaces the left / right offset above on this screen only.',
+      }),
+      defineField({
+        name: `stillOffsetY${bp.key}`,
+        title: `Up / Down - ${bp.title}`,
+        type: 'string',
+        fieldset: 'stillZoom',
+        description: 'Replaces the up / down offset above on this screen only.',
+      }),
+    ]),
+  ]
+}
+
 const carouselExitOptions = [
   {title: 'Fade', value: 'fade'},
   {title: 'To left', value: 'to-left'},
@@ -25,13 +82,46 @@ const carouselExitOptions = [
   {title: 'To bottom', value: 'to-bottom'},
 ]
 
+const arrowModeOptions = [
+  {title: 'Original Colors', value: 'original'},
+  {title: 'White (Flat)', value: 'white'},
+  {title: 'Black (Flat)', value: 'black'},
+  {title: 'Contrast (Difference)', value: 'contrast'},
+  {title: 'Liquid Metal (Overlay)', value: 'liquid'},
+  {title: 'Apple Glass (Blur/Glow)', value: 'glass'},
+  {title: 'RGB (Chromatic)', value: 'rgb'},
+  {title: 'Custom Color (Solid)', value: 'custom'},
+]
+
+const arrowBlendOptions = [
+  {title: 'Normal', value: 'normal'},
+  {title: 'Darken (Abdunkeln)', value: 'darken'},
+  {title: 'Multiply (Multiplizieren)', value: 'multiply'},
+  {title: 'Color Burn (Farbig nachbelichten)', value: 'color-burn'},
+  {title: 'Lighten (Aufhellen)', value: 'lighten'},
+  {title: 'Screen (Negativ Multiplizieren)', value: 'screen'},
+  {title: 'Color Dodge (Farbig abwedeln)', value: 'color-dodge'},
+  {title: 'Overlay (Ineinanderkopieren)', value: 'overlay'},
+  {title: 'Soft Light (Weiches Licht)', value: 'soft-light'},
+  {title: 'Hard Light (Hartes Licht)', value: 'hard-light'},
+  {title: 'Difference (Differenz)', value: 'difference'},
+  {title: 'Exclusion (Ausschluss)', value: 'exclusion'},
+  {title: 'Hue (Farbton)', value: 'hue'},
+  {title: 'Saturation (Sättigung)', value: 'saturation'},
+  {title: 'Color (Farbe)', value: 'color'},
+  {title: 'Luminosity (Luminanz)', value: 'luminosity'},
+]
+
+const showCarouselArrows = ({parent, path}: {parent?: {carouselClickArrows?: boolean}; path?: unknown[]}) =>
+  isCarouselItem({path}) || !parent?.carouselClickArrows
+
 export default defineType({
   name: 'mediaItem',
   title: 'Media Item',
   type: 'object',
   fieldsets: [
     {name: 'cover', title: 'Cover Image', options: closed},
-    {name: 'stillZoom', title: 'SVG / PNG Zoom', options: closed},
+    {name: 'stillZoom', title: 'SVG / PNG Size & Position', options: closed},
     {name: 'endFrame', title: 'End Frame', options: closed},
     {name: 'video', title: 'Video', options: closed},
     {name: 'sequence', title: 'Image Sequence (Files & Start)', options: closed},
@@ -81,8 +171,62 @@ export default defineType({
       title: 'Default zoom (all breakpoints)',
       type: 'number',
       fieldset: 'stillZoom',
-      description: 'Size of this still on every screen, on top of one shared default. For an SVG or PNG, empty = that default: every icon is the same size, whatever its pixel dimensions. 100 is the same default. 200 is twice as big. JPG photos stay filling the frame until a number is set. Optical Media Zoom on the section still fine-tunes one breakpoint on top of this.',
+      description: 'Size of this still on every screen, on top of one shared default. For an SVG or PNG, empty = that default: every icon is the same size, whatever its pixel dimensions. 100 is the same default. 200 is twice as big. JPG photos stay filling the frame until a number is set. A size number in a device fold below replaces this on that screen only. Optical Media Zoom on the section still fine-tunes one breakpoint on top of this.',
       validation: (Rule) => Rule.min(1).max(400),
+    }),
+    ...stillOffsetFields(),
+    defineField({
+      name: 'stillEffectMode',
+      title: 'Effect Mode',
+      type: 'string',
+      fieldset: 'stillZoom',
+      options: {list: arrowModeOptions},
+      initialValue: 'original',
+      description: 'Same filters as the logo on a template: liquid metal, glass, contrast, RGB, white, black, or a custom color.',
+    }),
+    defineField({
+      name: 'stillEffectColor',
+      title: 'Color',
+      type: 'string',
+      fieldset: 'stillZoom',
+      description: 'Main fill / filter color. Used when Effect Mode is custom, glass, or liquid.',
+      hidden: ({parent}) => !['custom', 'glass', 'liquid'].includes(parent?.stillEffectMode),
+    }),
+    defineField({
+      name: 'stillEffectColorOpacity',
+      title: 'Color Transparency',
+      type: 'number',
+      fieldset: 'stillZoom',
+      description: '0.0 (Transparent) to 1.0 (Solid). Applies to the color above.',
+      validation: (Rule) => Rule.min(0).max(1),
+      hidden: ({parent}) => !['custom', 'glass', 'liquid'].includes(parent?.stillEffectMode),
+    }),
+    defineField({
+      name: 'stillBlendMode',
+      title: 'Blend Mode',
+      type: 'string',
+      fieldset: 'stillZoom',
+      options: {list: arrowBlendOptions},
+      initialValue: 'normal',
+      description: 'Photoshop / Illustrator blend. Pick one and the color for that blend appears below. Used when Effect Mode is Original, same as the logo underlay.',
+    }),
+    defineField({
+      name: 'stillBlendColor',
+      title: 'Blend color',
+      type: 'string',
+      fieldset: 'stillZoom',
+      description: 'The fill this blend mode mixes with the background, e.g. #FFFFFF. This color is what changes the blend.',
+      hidden: ({parent}) => !parent?.stillBlendMode || parent?.stillBlendMode === 'normal',
+    }),
+    defineField({
+      name: 'stillBlendOpacity',
+      title: 'Blend transparency',
+      type: 'number',
+      fieldset: 'stillZoom',
+      description: 'Photoshop Opacity (0–1), applied AFTER the blend. 1 = full blend, 0.4 = 40% strength.',
+      validation: (Rule) => Rule.min(0).max(1),
+      initialValue: 1,
+      hidden: ({parent}) => !parent?.stillBlendMode || parent?.stillBlendMode === 'normal',
     }),
     defineField({
       name: 'endFrameImageSource',
@@ -476,8 +620,88 @@ export default defineType({
       title: 'Moved by the mouse (up or down)',
       type: 'boolean',
       fieldset: 'carousel',
-      hidden: ({parent, path}) => isCarouselItem({path}) || Boolean(parent?.carouselLoop),
-      description: 'Scroll down = next image. Scroll up = previous image. At the first or last item, further scroll stacks the section. Only works with Loop off. Hold is ignored while this is on.',
+      hidden: ({parent, path}) => isCarouselItem({path}),
+      description: 'On its own: scroll down = next image, scroll up = previous image. Another scroll on the first or last image goes to the section above or below. With Click arrows on: the scroll does not change the image. Down goes to the next section, up goes to the section above, from whichever image is showing. This stays on with Loop, so the arrows can repeat the images while the scroll still leaves the section.',
+    }),
+    defineField({
+      name: 'carouselClickArrows',
+      title: 'Click arrows',
+      type: 'boolean',
+      fieldset: 'carousel',
+      initialValue: false,
+      hidden: ({parent, path}) => isCarouselItem({path}),
+      description: 'Left and right arrows at mid height. A click moves one image, back or forward. With Loop on, a click past the last image returns to the first. Mouse scroll can stay on: the scroll then leaves to the next section or the section above from any image.',
+    }),
+    defineField({
+      name: 'carouselArrowImage',
+      title: 'Arrow SVG',
+      type: 'image',
+      fieldset: 'carousel',
+      hidden: showCarouselArrows,
+      description: 'One arrow, used on both sides. The right one is rotated 180 degrees. Empty uses the site-wide arrow, or a simple chevron when that is empty too.',
+      options: {accept: 'image/svg+xml'},
+    }),
+    defineField({
+      name: 'carouselArrowSize',
+      title: 'Arrow size',
+      type: 'string',
+      fieldset: 'carousel',
+      hidden: showCarouselArrows,
+      description: 'Examples: 28, 32px, 4vh. A bare number is pixels. Empty uses the site-wide size for this screen.',
+    }),
+    defineField({
+      name: 'carouselArrowOffsetLeft',
+      title: 'Left arrow offset',
+      type: 'string',
+      fieldset: 'carousel',
+      hidden: showCarouselArrows,
+      description: 'Distance from the left border. Examples: 24, 3vw. A bare number is pixels. Empty uses the site-wide offset for this screen.',
+    }),
+    defineField({
+      name: 'carouselArrowOffsetRight',
+      title: 'Right arrow offset',
+      type: 'string',
+      fieldset: 'carousel',
+      hidden: showCarouselArrows,
+      description: 'Distance from the right border. Examples: 24, 3vw. A bare number is pixels. Empty uses the site-wide offset for this screen.',
+    }),
+    defineField({
+      name: 'carouselArrowOffsetY',
+      title: 'Arrow vertical offset',
+      type: 'string',
+      fieldset: 'carousel',
+      hidden: showCarouselArrows,
+      description: 'Moves both arrows off mid height. Positive moves down, negative moves up. A bare number is pixels. Empty uses the site-wide offset for this screen.',
+    }),
+    defineField({
+      name: 'carouselArrowMode',
+      title: 'Arrow effect',
+      type: 'string',
+      fieldset: 'carousel',
+      options: {list: arrowModeOptions},
+      hidden: showCarouselArrows,
+      description: 'Empty uses the site-wide effect. A choice here replaces it for this carousel.',
+    }),
+    defineField({
+      name: 'carouselArrowColor',
+      title: 'Arrow color',
+      type: 'string',
+      fieldset: 'carousel',
+      hidden: ({parent, path}) => {
+        if (showCarouselArrows({parent, path})) return true
+        const mode = parent?.carouselArrowMode || 'original'
+        return mode !== 'custom' && mode !== 'original'
+      },
+      description: 'Hex, for example #00ffff. Empty uses the site-wide color. A value here replaces it. On Original it tints the arrow. On Custom Color it is the solid color.',
+    }),
+    defineField({
+      name: 'carouselArrowBlend',
+      title: 'Arrow blend',
+      type: 'string',
+      fieldset: 'carousel',
+      options: {list: arrowBlendOptions},
+      hidden: showCarouselArrows,
+      description: 'Empty uses the site-wide blend. A choice here replaces it. Used when the effect is Original.',
     }),
     defineField({
       name: 'carouselStartScrollDown',
@@ -532,6 +756,15 @@ export default defineType({
       validation: Rule => Rule.min(1).integer(),
     }),
     defineField({
+      name: 'carouselResumeLast',
+      title: 'Last active card',
+      type: 'boolean',
+      fieldset: 'carousel',
+      initialValue: false,
+      hidden: isCarouselItem,
+      description: 'A new page load uses the start choices above. After this carousel has been open in this visit, scrolling back from the section above or below shows the card that was on screen. Works on every template.',
+    }),
+    defineField({
       name: 'carouselEdgeHold',
       title: 'Card while the next section stacks',
       type: 'string',
@@ -559,7 +792,7 @@ export default defineType({
       title: 'Hold (seconds)',
       type: 'number',
       fieldset: 'carouselTimed',
-      hidden: ({parent}) => parent?.carouselMouseScroll && !parent?.carouselLoop,
+      hidden: ({parent}) => (parent?.carouselMouseScroll || parent?.carouselClickArrows) && !parent?.carouselLoop,
       description: 'How long each media stays before the next move. Empty = 3 seconds. On an item, empty uses this carousel Hold.',
     }),
     defineField({
@@ -599,7 +832,7 @@ export default defineType({
       type: 'boolean',
       fieldset: 'carousel',
       hidden: isCarouselItem,
-      description: 'Play the list again after the last item. Loop uses Timed Animation only. Mouse stepping is off while Loop is on.',
+      description: 'After the last image, play the first again. With Click arrows, the arrows repeat the list. With Mouse scroll on as well, the scroll still leaves to the next section or the section above from any image.',
     }),
   ],
   preview: {

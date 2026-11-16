@@ -18,6 +18,25 @@ const showGranular = ({parent}: any) => {
     return ['custom', 'liquid'].includes(dMode) || ['custom', 'liquid'].includes(mMode);
 };
 
+const blendModeOptions = [
+  {title: 'Normal', value: 'normal'},
+  {title: 'Darken (Abdunkeln)', value: 'darken'},
+  {title: 'Multiply (Multiplizieren)', value: 'multiply'},
+  {title: 'Color Burn (Farbig nachbelichten)', value: 'color-burn'},
+  {title: 'Lighten (Aufhellen)', value: 'lighten'},
+  {title: 'Screen (Negativ Multiplizieren)', value: 'screen'},
+  {title: 'Color Dodge (Farbig abwedeln)', value: 'color-dodge'},
+  {title: 'Overlay (Ineinanderkopieren)', value: 'overlay'},
+  {title: 'Soft Light (Weiches Licht)', value: 'soft-light'},
+  {title: 'Hard Light (Hartes Licht)', value: 'hard-light'},
+  {title: 'Difference (Differenz)', value: 'difference'},
+  {title: 'Exclusion (Ausschluss)', value: 'exclusion'},
+  {title: 'Hue (Farbton)', value: 'hue'},
+  {title: 'Saturation (Sättigung)', value: 'saturation'},
+  {title: 'Color (Farbe)', value: 'color'},
+  {title: 'Luminosity (Luminanz)', value: 'luminosity'},
+]
+
 const breakpoints = [
   { key: 'Desktop', title: '1. Big Screen (> 1600px)' },
   { key: 'Laptop', title: '2. Laptop / Mid (1025px - 1600px)' },
@@ -106,6 +125,79 @@ const createMasterButtonFields = (fieldset: string) => {
     });
     return fields;
 };
+
+const createCarouselArrowFields = (fieldset: string) => {
+    const fields: any[] = [
+        defineField({
+            name: 'carouselArrowImage',
+            title: 'Carousel Arrow SVG',
+            type: 'image',
+            fieldset,
+            description: 'One arrow for every carousel that turns click arrows on. The right one is rotated 180 degrees. Empty uses a simple chevron. An upload on the carousel replaces this.',
+            options: {accept: 'image/svg+xml'},
+        }),
+        defineField({
+            name: 'carouselArrowMode',
+            title: 'Carousel Arrow Effect',
+            type: 'string',
+            fieldset,
+            options: {list: modeOptions},
+            initialValue: 'original',
+            description: 'Same filters as the other buttons. An effect on the carousel replaces this.',
+        }),
+        defineField({
+            name: 'carouselArrowColor',
+            title: 'Carousel Arrow Color',
+            type: 'string',
+            fieldset,
+            description: 'Hex, for example #ffffff. On Original this tints the arrow. On Custom Color it is the solid color. A color on the carousel replaces this.',
+            hidden: ({parent}) => {
+                const mode = parent?.carouselArrowMode || 'original'
+                return mode !== 'custom' && mode !== 'original'
+            },
+        }),
+        defineField({
+            name: 'carouselArrowBlend',
+            title: 'Carousel Arrow Blend',
+            type: 'string',
+            fieldset,
+            options: {list: blendModeOptions},
+            initialValue: 'normal',
+            description: 'Photoshop mix with the picture behind the arrow. Used when the effect is Original. A blend on the carousel replaces this.',
+        }),
+    ]
+    breakpoints.forEach((bp) => {
+        fields.push(defineField({
+            name: `carouselArrowSize${bp.key}`,
+            title: `Carousel Arrow Size - ${bp.title}`,
+            type: 'string',
+            fieldset,
+            description: 'Examples: 28, 32px, 4vh. A bare number is pixels. Empty on a screen uses Desktop. A size on the carousel replaces this.',
+        }))
+        fields.push(defineField({
+            name: `carouselArrowOffsetLeft${bp.key}`,
+            title: `Carousel Arrow Left Offset - ${bp.title}`,
+            type: 'string',
+            fieldset,
+            description: 'Distance from the left border. Empty on a screen uses Desktop, then 24px. A left offset on the carousel replaces this.',
+        }))
+        fields.push(defineField({
+            name: `carouselArrowOffsetRight${bp.key}`,
+            title: `Carousel Arrow Right Offset - ${bp.title}`,
+            type: 'string',
+            fieldset,
+            description: 'Distance from the right border. Empty on a screen uses Desktop, then 24px. A right offset on the carousel replaces this.',
+        }))
+        fields.push(defineField({
+            name: `carouselArrowOffsetY${bp.key}`,
+            title: `Carousel Arrow Vertical Offset - ${bp.title}`,
+            type: 'string',
+            fieldset,
+            description: 'Moves both arrows off mid height. Positive moves down. Empty on a screen uses Desktop, then centered. A vertical offset on the carousel replaces this.',
+        }))
+    })
+    return fields
+}
 
 const createUnifiedButtonFields = (prefix: string, titlePrefix: string, fieldset: string, hasGap: boolean = false) => {
     const fields: any[] = [];
@@ -549,6 +641,7 @@ export default defineType({
     defineField({name: 'uiColorMobile', title: 'UI Color (Mobile)', type: 'string', hidden: true, fieldset: 'globalButtonConfig'}),
     ...createUnifiedButtonFields('ui', 'Overview/Close Icons', 'globalButtonConfig'),
     ...createUnifiedButtonFields('mediaBtn', 'Media Controls (Play & Sound)', 'globalButtonConfig', true),
+    ...createCarouselArrowFields('globalButtonConfig'),
 
     defineField({ name: 'companyInfoText', title: 'Company Info Text', type: 'array', of: customBlockEditor, fieldset: 'companyConfig' }),
     defineField({name: 'companyOverlayColor', title: 'Overlay Background Color', type: 'string', fieldset: 'companyConfig'}),
