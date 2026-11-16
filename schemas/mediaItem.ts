@@ -15,7 +15,7 @@ const carouselEnterOptions = [
   {title: 'From right', value: 'from-right'},
   {title: 'From top', value: 'from-top'},
   {title: 'From bottom', value: 'from-bottom'},
-  {title: 'Swap (no overlap: old fades out, then new fades in)', value: 'swap'},
+  {title: 'Swap (pop: old disappears, empty for Move duration, new pops up)', value: 'swap'},
 ]
 
 const STILL_OFFSET_BREAKPOINTS = [
@@ -81,7 +81,7 @@ const carouselExitOptions = [
   {title: 'To right', value: 'to-right'},
   {title: 'To top', value: 'to-top'},
   {title: 'To bottom', value: 'to-bottom'},
-  {title: 'Swap (no overlap: old fades out, then new fades in)', value: 'swap'},
+  {title: 'Swap (pop: old disappears, empty for Move duration, new pops up)', value: 'swap'},
 ]
 
 const arrowModeOptions = [
