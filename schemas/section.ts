@@ -1658,6 +1658,22 @@ defineField({
       hidden: ({document}: any) => document?.template !== 'p'
     }),
     defineField({
+      name: 'modularPaddingXMobilePortrait',
+      title: 'Mobile Portrait – Side Padding (e.g. 5vw)',
+      type: 'string',
+      fieldset: 'modularGridConfig',
+      description: 'Space left and right of the stacked images on phones held upright. Empty = no side padding.',
+      hidden: ({document}: any) => document?.template !== 'p'
+    }),
+    defineField({
+      name: 'modularPaddingYMobilePortrait',
+      title: 'Mobile Portrait – Vertical Padding (e.g. 3vh)',
+      type: 'string',
+      fieldset: 'modularGridConfig',
+      description: 'Space above the first and below the last image, and the same space between the images, on phones held upright. Empty = Grid Gap between images, no top/bottom padding.',
+      hidden: ({document}: any) => document?.template !== 'p'
+    }),
+    defineField({
       name: 'modularHeightDesktop', 
       title: 'Extra Bottom Space (Desktop)', 
       type: 'string', 
