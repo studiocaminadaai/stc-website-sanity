@@ -117,6 +117,28 @@ const arrowBlendOptions = [
 const showCarouselArrows = ({parent, path}: {parent?: {carouselClickArrows?: boolean}; path?: unknown[]}) =>
   isCarouselItem({path}) || !parent?.carouselClickArrows
 
+
+// --- Different media per device -------------------------------------------------------------
+// Optional. Each entry holds a complete media item (image, video, YouTube/Vimeo, sequence,
+// carousel) plus the screens it replaces the main media on. Empty = every screen shows the
+// main media, as before. The first entry that lists the current screen wins.
+const DEVICE_VARIANT_OPTIONS = [
+  {title: 'Desktop (> 1600px)', value: 'Desktop'},
+  {title: 'Laptop (1025 – 1600px)', value: 'Laptop'},
+  {title: 'Tablet landscape', value: 'TabletLandscape'},
+  {title: 'Tablet portrait', value: 'TabletPortrait'},
+  {title: 'Mobile landscape big', value: 'MobileLandscape'},
+  {title: 'Mobile landscape small', value: 'MobileLandscapeSmall'},
+  {title: 'Mobile portrait big', value: 'MobilePortrait'},
+  {title: 'Mobile portrait small', value: 'MobilePortraitSmall'},
+]
+const DEVICE_LABEL: Record<string, string> = Object.fromEntries(
+  DEVICE_VARIANT_OPTIONS.map((o) => [o.value, o.title.replace(/ \(.*\)$/, '')]),
+)
+// A variant's own media must not offer variants again (and carousel slides don't get them).
+const isInsideVariantOrSlide = ({path}: {path?: unknown[]}) =>
+  Array.isArray(path) && (path.includes('deviceVariants') || path.includes('carouselSlides'))
+
 export default defineType({
   name: 'mediaItem',
   title: 'Media Item',
@@ -133,8 +155,47 @@ export default defineType({
     {name: 'caption', title: 'Caption & Offset', options: closed},
     {name: 'carousel', title: 'Carousel', options: closed},
     {name: 'carouselTimed', title: 'Timed Animation', options: closed},
+    {name: 'deviceVariants', title: 'Different media per device', options: closed},
   ],
   fields: [
+    defineField({
+      name: 'deviceVariants',
+      title: 'Media for specific screens',
+      type: 'array',
+      fieldset: 'deviceVariants',
+      hidden: isInsideVariantOrSlide,
+      description: 'Leave empty to show the media above on every screen. Add an entry to show different media (image, video, YouTube/Vimeo or sequence) on the screens you tick. Ratios and sizes per device still come from the section.',
+      of: [
+        {
+          type: 'object',
+          name: 'deviceVariant',
+          title: 'Screen-specific media',
+          fields: [
+            defineField({
+              name: 'devices',
+              title: 'Show on these screens',
+              type: 'array',
+              of: [{type: 'string'}],
+              options: {list: DEVICE_VARIANT_OPTIONS, layout: 'grid'},
+              validation: (rule) => rule.required().min(1),
+            }),
+            defineField({
+              name: 'media',
+              title: 'Media for these screens',
+              type: 'mediaItem',
+            }),
+          ],
+          preview: {
+            select: {devices: 'devices', image: 'media.image', seq: 'media.enableImageSequence', video: 'media.videoSource'},
+            prepare({devices, image, seq, video}: any) {
+              const list = Array.isArray(devices) ? devices.map((d: string) => DEVICE_LABEL[d] || d).join(', ') : 'No screens ticked'
+              const kind = seq ? 'Image sequence' : video && video !== 'sanity' ? `Video (${video})` : 'Media'
+              return {title: list, subtitle: kind, media: image}
+            },
+          },
+        },
+      ],
+    }),
     defineField({
       name: 'imageSource',
       title: 'Cover Image Source',
