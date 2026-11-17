@@ -136,8 +136,9 @@ const DEVICE_LABEL: Record<string, string> = Object.fromEntries(
   DEVICE_VARIANT_OPTIONS.map((o) => [o.value, o.title.replace(/ \(.*\)$/, '')]),
 )
 // A variant's own media must not offer variants again (and carousel slides don't get them).
+// (path ends with this field's own name, so only the segments before it are checked)
 const isInsideVariantOrSlide = ({path}: {path?: unknown[]}) =>
-  Array.isArray(path) && (path.includes('deviceVariants') || path.includes('carouselSlides'))
+  Array.isArray(path) && path.slice(0, -1).some((seg) => seg === 'deviceVariants' || seg === 'carouselSlides')
 
 export default defineType({
   name: 'mediaItem',
@@ -155,14 +156,14 @@ export default defineType({
     {name: 'caption', title: 'Caption & Offset', options: closed},
     {name: 'carousel', title: 'Carousel', options: closed},
     {name: 'carouselTimed', title: 'Timed Animation', options: closed},
-    {name: 'deviceVariants', title: 'Different media per device', options: closed},
+    {name: 'deviceVariantsFold', title: 'Different media per device', options: closed},
   ],
   fields: [
     defineField({
       name: 'deviceVariants',
       title: 'Media for specific screens',
       type: 'array',
-      fieldset: 'deviceVariants',
+      fieldset: 'deviceVariantsFold',
       hidden: isInsideVariantOrSlide,
       description: 'Leave empty to show the media above on every screen. Add an entry to show different media (image, video, YouTube/Vimeo or sequence) on the screens you tick. Ratios and sizes per device still come from the section.',
       of: [
