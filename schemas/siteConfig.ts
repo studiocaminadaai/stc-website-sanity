@@ -570,6 +570,7 @@ export default defineType({
     {name: 'typeGlobalNormal', title: 'Global Typography: Normal Text', description: 'Font, size, line height and letter spacing per screen size. Empty inherits.', options: {collapsible: true, collapsed: true}},
     {name: 'typeGlobalSmall', title: 'Global Typography: Small (labels)', description: 'Very small text such as the role labels in the credits marquee (Designer, Creative Director…). Font, size, line height and letter spacing per screen size. Empty keeps the old size (45% of the marquee names).', options: {collapsible: true, collapsed: true}},
     {name: 'typeGlobalQuote', title: 'Global Typography: Quote', description: 'Font, size, line height and letter spacing per screen size. Empty inherits.', options: {collapsible: true, collapsed: true}},
+    {name: 'thumbHoverConfig', title: 'Overview Thumbnails: Hover', description: 'The layer that appears over a thumbnail on hover, under the project title.', options: {collapsible: true, collapsed: true}},
     {name: 'captionConfig', title: 'Global Caption Settings', description: 'Size, letter spacing and offsets per screen size. Empty keeps the default.', options: {collapsible: true, collapsed: true}},
 
     {name: 'containerConfigT', title: 'T: Typography, fullscreen 1', description: 'Width, max height and vertical offset per screen size. Empty keeps the default.', options: {collapsible: true, collapsed: true}},
@@ -685,6 +686,9 @@ export default defineType({
     ...createGlobalTypographyFields('globalQuote', 'typeGlobalQuote'),
     ...createGlobalTypographyFields('globalSmall', 'typeGlobalSmall'),
     ...createCaptionFields('captionConfig'),
+    defineField({name: 'thumbHoverBg', title: 'Hover Layer Color', type: 'string', description: 'e.g. "#36332f". Empty = no layer.', fieldset: 'thumbHoverConfig'}),
+    defineField({name: 'thumbHoverOpacity', title: 'Hover Layer Opacity', type: 'number', description: '0 to 1, e.g. 0.65 = 65% covering.', fieldset: 'thumbHoverConfig', validation: (Rule: any) => Rule.min(0).max(1)}),
+    defineField({name: 'thumbHoverTextColor', title: 'Hover Title Color', type: 'string', description: 'e.g. "#ffffff". Empty = the H5 color.', fieldset: 'thumbHoverConfig'}),
 
     ...createGlobalContainerFields('tContainer', 'containerConfigT'),
     ...createGlobalContainerFields('tNewContainer', 'containerConfigTNew'),
