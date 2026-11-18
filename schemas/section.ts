@@ -308,6 +308,25 @@ const createLogoTemplateFields = (fieldset: string) => {
 
   breakpoints.forEach(bp => {
     fields.push(defineField({
+      name: `logoTopOffsetY${bp.key}`,
+      title: `Logo at Top: Vertical Offset - ${bp.title}`,
+      type: 'string',
+      description: 'Moves this logo once it sits at the top, e.g. "-0.25rem" (up) or "0.25rem" (down). Empty = no change.',
+      fieldset,
+      hidden: ({document}: any) => document?.template !== 'logo'
+    }));
+    fields.push(defineField({
+      name: `logoTopOffsetX${bp.key}`,
+      title: `Logo at Top: Horizontal Offset - ${bp.title}`,
+      type: 'string',
+      description: 'Moves this logo once it sits at the top, e.g. "-0.25rem" (left) or "0.25rem" (right). Empty = no change.',
+      fieldset,
+      hidden: ({document}: any) => document?.template !== 'logo'
+    }));
+  });
+
+  breakpoints.forEach(bp => {
+    fields.push(defineField({
       name: `logoTemplateScale${bp.key}`,
       title: `Logo Scale - ${bp.title}`,
       type: 'number',
