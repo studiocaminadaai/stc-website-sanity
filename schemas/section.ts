@@ -1148,6 +1148,12 @@ export default defineType({
             initialValue: '2vw'
           }),
           defineField({ 
+            name: 'loopGap', 
+            title: 'Pause Space Before the Text Repeats', 
+            type: 'string',
+            description: 'Empty space after the last line, before the whole text starts again (e.g., "50vh" = half the screen height). Empty = no extra space.',
+          }),
+          defineField({ 
             name: 'rotation', 
             title: 'Text Rotation (Degrees)', 
             type: 'number',
