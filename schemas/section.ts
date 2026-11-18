@@ -297,6 +297,15 @@ const createLogoTemplateFields = (fieldset: string) => {
     { key: 'MobilePortraitSmall', title: 'Mobile Portrait Small' },
   ];
 
+  fields.push(defineField({
+    name: 'logoTopScale',
+    title: 'Logo Size at Top',
+    type: 'number',
+    description: 'Percentage of the project\'s top logo size, for this logo only, once it has moved to the top (default 100). Use it when two logo drawings fill their file differently.',
+    fieldset,
+    hidden: ({document}: any) => document?.template !== 'logo'
+  }));
+
   breakpoints.forEach(bp => {
     fields.push(defineField({
       name: `logoTemplateScale${bp.key}`,
@@ -1662,7 +1671,7 @@ defineField({
       title: 'Mobile Portrait – Side Padding (e.g. 5vw)',
       type: 'string',
       fieldset: 'modularGridConfig',
-      description: 'Space left and right of the stacked images on phones held upright. Empty = no side padding.',
+      description: 'Space left and right of the images on phones held upright. Empty = Site Config (P: Multiple media); empty there = no side padding.',
       hidden: ({document}: any) => document?.template !== 'p'
     }),
     defineField({
@@ -1670,8 +1679,97 @@ defineField({
       title: 'Mobile Portrait – Vertical Padding (e.g. 3vh)',
       type: 'string',
       fieldset: 'modularGridConfig',
-      description: 'Space above the first and below the last image, and the same space between the images, on phones held upright. Empty = Grid Gap between images, no top/bottom padding.',
+      description: 'Space above the first and below the last image on phones held upright; also the space between the images when no Gap is set. Empty = Site Config (P: Multiple media); empty there = no top/bottom padding.',
       hidden: ({document}: any) => document?.template !== 'p'
+    }),
+    defineField({
+      name: 'modularGapMobilePortrait',
+      title: 'Mobile Portrait – Gap (e.g. 2vw)',
+      type: 'string',
+      fieldset: 'modularGridConfig',
+      description: 'Space between the images, across and down. Empty = Site Config (P: Multiple media); empty there = the Vertical Padding, else the Grid Gap.',
+      hidden: ({document}: any) => document?.template !== 'p'
+    }),
+    defineField({
+      name: 'modularPerLineMobilePortrait',
+      title: 'Mobile Portrait – Images per Line (e.g. 2)',
+      type: 'number',
+      fieldset: 'modularGridConfig',
+      description: '1 = one image per line, stacked. 2 or more = lines of images in the same proportion and size; the last line holds what is left. Empty = Site Config (P: Multiple media); empty there = 1.',
+      validation: (Rule: any) => Rule.integer().min(1),
+      hidden: ({document}: any) => document?.template !== 'p'
+    }),
+    defineField({
+      name: 'modularRatioMobilePortrait',
+      title: 'Mobile Portrait Lines – Proportion (e.g. 3/4)',
+      type: 'string',
+      fieldset: 'modularGridConfig',
+      description: 'For 2 or more images per line: width / height of every image, e.g. 3/4 or 0.75. auto = the typical proportion of this section\'s images. Empty = Site Config (P: Multiple media).',
+      hidden: ({document}: any) => document?.template !== 'p'
+    }),
+    defineField({
+      name: 'modularLayoutMobileLandscape',
+      title: 'Mobile Landscape – Layout',
+      type: 'string',
+      fieldset: 'modularGridConfig',
+      options: {
+        list: [
+          {title: 'Free (positions as set per image)', value: 'free'},
+          {title: 'Lines (same size, set number per line)', value: 'row'},
+        ],
+        layout: 'radio',
+      },
+      description: 'Lines: images in the same proportion and size, a set number per line, centred on the screen. Empty = Free.',
+      hidden: ({document}: any) => document?.template !== 'p'
+    }),
+    defineField({
+      name: 'modularPerLineMobileLandscape',
+      title: 'Mobile Landscape Lines – Images per Line (e.g. 3)',
+      type: 'number',
+      fieldset: 'modularGridConfig',
+      description: 'The last line holds what is left, centred. Empty = Site Config (P: Multiple media); empty there = all images in one line.',
+      validation: (Rule: any) => Rule.integer().min(1),
+      hidden: ({document}: any) => document?.template !== 'p' || document?.modularLayoutMobileLandscape !== 'row'
+    }),
+    defineField({
+      name: 'modularPaddingXMobileLandscape',
+      title: 'Mobile Landscape Lines – Side Padding (e.g. 4vw)',
+      type: 'string',
+      fieldset: 'modularGridConfig',
+      description: 'Space left and right of the lines. Empty = Site Config (P: Multiple media); empty there = Mobile Landscape Padding.',
+      hidden: ({document}: any) => document?.template !== 'p' || document?.modularLayoutMobileLandscape !== 'row'
+    }),
+    defineField({
+      name: 'modularPaddingYMobileLandscape',
+      title: 'Mobile Landscape Lines – Top/Bottom Padding (e.g. 3vh)',
+      type: 'string',
+      fieldset: 'modularGridConfig',
+      description: 'Space above the first and below the last line. Lines that fit stay centred on one screen. Empty = Site Config (P: Multiple media); empty there = none.',
+      hidden: ({document}: any) => document?.template !== 'p' || document?.modularLayoutMobileLandscape !== 'row'
+    }),
+    defineField({
+      name: 'modularRowHeightMobileLandscape',
+      title: 'Mobile Landscape Lines – Image Height (e.g. 70%)',
+      type: 'string',
+      fieldset: 'modularGridConfig',
+      description: 'In % of the visible screen height, or a length (e.g. 250px). The images get narrower only if a line would not fit the width. Empty = Site Config (P: Multiple media).',
+      hidden: ({document}: any) => document?.template !== 'p' || document?.modularLayoutMobileLandscape !== 'row'
+    }),
+    defineField({
+      name: 'modularRowGapMobileLandscape',
+      title: 'Mobile Landscape Lines – Gap (e.g. 2vw)',
+      type: 'string',
+      fieldset: 'modularGridConfig',
+      description: 'Space between the images and between the lines. Empty = Site Config (P: Multiple media).',
+      hidden: ({document}: any) => document?.template !== 'p' || document?.modularLayoutMobileLandscape !== 'row'
+    }),
+    defineField({
+      name: 'modularRowRatioMobileLandscape',
+      title: 'Mobile Landscape Lines – Proportion (e.g. 3/4)',
+      type: 'string',
+      fieldset: 'modularGridConfig',
+      description: 'Width / height of every image, e.g. 3/4 or 0.75. auto = the typical proportion of this section\'s images. Empty = Site Config (P: Multiple media).',
+      hidden: ({document}: any) => document?.template !== 'p' || document?.modularLayoutMobileLandscape !== 'row'
     }),
     defineField({
       name: 'modularHeightDesktop', 
