@@ -19,7 +19,8 @@
     "deploy-graphql": "sanity graphql deploy",
     "update-cors": "echo 'Pick a site: npm run update-cors:noum  or  npm run update-cors:orem' && exit 1",
     "update-cors:noum": "SANITY_ACTIVE_ENV=noum npx ts-node ./update-cors.ts",
-    "update-cors:orem": "SANITY_ACTIVE_ENV=orem npx ts-node ./update-cors.ts"
+    "update-cors:orem": "SANITY_ACTIVE_ENV=orem npx ts-node ./update-cors.ts",
+    "site": "node scripts/site.mjs"
   },
   "keywords": [
     "sanity"

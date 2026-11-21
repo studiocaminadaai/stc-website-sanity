@@ -16,7 +16,7 @@ const dataset = process.env.SANITY_STUDIO_DATASET || 'production'
 const studioHost = process.env.SANITY_STUDIO_HOST
 
 if (!projectId) {
-  throw new Error('No site selected. Use: npm run dev:noum  or  npm run dev:orem (deploy:noum / deploy:orem)')
+  throw new Error('No site selected. Use: npm run site -- dev <site>  (e.g. noum, orem), or npm run dev:noum / dev:orem')
 }
 
 export default defineCliConfig({
