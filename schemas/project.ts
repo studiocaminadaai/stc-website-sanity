@@ -78,6 +78,13 @@ groups: [
       initialValue: false,
     }),
     defineField({
+      name: 'isUnlisted',
+      title: 'Unlisted (only via direct link)',
+      type: 'boolean',
+      description: 'ON: the project is online, but not in the overview, not in the project order and not in the sitemap. Anyone with its direct link can open it, e.g. https://www.noum.studio/#R (R = Project Key). No password: treat the link as shareable. Offline above still wins.',
+      initialValue: false,
+    }),
+    defineField({
       name: 'projectKey',
       title: 'Project Key',
       type: 'string',
