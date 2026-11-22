@@ -663,6 +663,14 @@ export default defineType({
       description: 'Move the media up or down. E.g., "-2rem" or "5vh" or "-20px".',
     }),
     defineField({
+      name: 'captionArrow',
+      title: 'Animated Arrow above Caption',
+      type: 'boolean',
+      fieldset: 'caption',
+      description: 'Shows a small down arrow above the caption that moves up and down (e.g. for "scroll down"). Uses the caption color.',
+      initialValue: false,
+    }),
+    defineField({
       name: 'hideCaptionMobileLandscape',
       title: 'Hide Caption (Mobile Landscape)',
       type: 'boolean',

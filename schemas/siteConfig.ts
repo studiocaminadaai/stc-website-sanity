@@ -319,6 +319,57 @@ const showCookieBtnGranular = ({parent}: any) => {
     return ['custom', 'liquid'].includes(dMode) || ['custom', 'liquid'].includes(mMode);
 };
 
+const navigationHintFields = () => {
+    const styleList = [
+        {title: 'H1', value: 'h1'}, {title: 'H2', value: 'h2'}, {title: 'H3', value: 'h3'},
+        {title: 'H4', value: 'h4'}, {title: 'H5', value: 'h5'}, {title: 'Normal', value: 'normal'},
+    ];
+    const text = (name: string, title: string, initialValue: string, fieldset?: string) =>
+        defineField({name, title, type: 'string', initialValue, ...(fieldset ? {fieldset} : {})});
+    return [
+        defineField({name: 'isActive', title: 'Enable Navigation Hint', type: 'boolean', initialValue: true}),
+        defineField({
+            name: 'delay',
+            title: 'Delay after cookie popup (ms)',
+            type: 'number',
+            initialValue: 600,
+            description: 'Milliseconds after the cookie popup closes. If the cookie popup is off, counted from page load.',
+            validation: (Rule) => Rule.min(0),
+        }),
+        defineField({
+            name: 'actionStyle',
+            title: 'Text Style: Action line (e.g. "Scroll down")',
+            type: 'string',
+            options: {list: styleList},
+            initialValue: 'h5',
+        }),
+        defineField({
+            name: 'meaningStyle',
+            title: 'Text Style: Meaning line (e.g. "Project depth")',
+            type: 'string',
+            options: {list: styleList},
+            initialValue: 'normal',
+        }),
+        defineField({name: 'enableSizeFineTune', title: 'Fine-tune text sizes per device', type: 'boolean', initialValue: false, description: 'Override the sizes of the two text lines. Empty fields fall back (small phone → phone → desktop).'}),
+        ...breakpoints.flatMap((bp) => [
+            defineField({name: `actionSize${bp.key}`, title: `Action line size - ${bp.title}`, type: 'string', description: 'e.g. 1.25rem', hidden: ({parent}) => !parent?.enableSizeFineTune}),
+            defineField({name: `meaningSize${bp.key}`, title: `Meaning line size - ${bp.title}`, type: 'string', description: 'e.g. 1rem', hidden: ({parent}) => !parent?.enableSizeFineTune}),
+        ]),
+        defineField({name: 'textColor', title: 'Text Color', type: 'string', description: 'Hex, e.g. #ffffff. Empty = text color of the cookie popup.'}),
+        defineField({name: 'arrowColor', title: 'Arrow Color', type: 'string', description: 'Hex. Empty = same as text color.'}),
+        defineField({name: 'itemGap', title: 'Gap between the three items', type: 'string', initialValue: '2.5rem', description: 'e.g. 2.5rem, 40px'}),
+        text('scrollAction', 'Scroll: Action', 'Scroll down'),
+        text('scrollMeaning', 'Scroll: Meaning', 'Project depth'),
+        text('nextActionMobile', 'Next: Action (touch devices)', 'Swipe left'),
+        text('nextActionDesktop', 'Next: Action (mouse)', 'Click right'),
+        text('nextMeaning', 'Next: Meaning', 'Next project'),
+        text('prevActionMobile', 'Previous: Action (touch devices)', 'Swipe right'),
+        text('prevActionDesktop', 'Previous: Action (mouse)', 'Click left'),
+        text('prevMeaning', 'Previous: Meaning', 'Previous project'),
+        text('buttonText', 'Button Text', 'Got it'),
+    ];
+};
+
 const cookieConsentFields = () => {
     const sizeFields: any[] = [];
     const btnSizeFields: any[] = [];
@@ -587,6 +638,7 @@ export default defineType({
     {name: 'filterConfig', title: 'Filter Buttons (Global)', options: {collapsible: true, collapsed: true}}, 
     {name: 'filterPosConfig', title: 'Layout & Positioning (Global, Advanced)', options: {collapsible: true, collapsed: true}}, 
     {name: 'cookieConfig', title: 'Cookie Consent', options: {collapsible: true, collapsed: true}},
+    {name: 'navHintConfig', title: 'Navigation Hint (first visit)', options: {collapsible: true, collapsed: true}},
   ],
   fields: [
     defineField({name: 'title', title: 'Site Title', type: 'string', initialValue: 'Global Settings'}),
@@ -749,6 +801,16 @@ export default defineType({
       fieldset: 'cookieConfig',
       options: {collapsible: true, collapsed: true},
       fields: cookieConsentFields(),
+    }),
+
+    defineField({
+      name: 'navigationHint',
+      title: 'Navigation Hint Popup',
+      type: 'object',
+      fieldset: 'navHintConfig',
+      description: 'Shown once per browser on the first visit, after the cookie popup is answered. Uses the look of the Cookie Consent popup (background, effect, corners, shadow, button style).',
+      options: {collapsible: true, collapsed: true},
+      fields: navigationHintFields(),
     }),
 
     defineField({name: 'overviewBackgroundColor', title: 'Overview Background Color', type: 'string', initialValue: '#f5f0e1', fieldset: 'thumbnailOverviewConfig'}),
