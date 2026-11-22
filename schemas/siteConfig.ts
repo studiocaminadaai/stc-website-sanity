@@ -433,6 +433,8 @@ const cookieConsentFields = () => {
             type: 'array',
             of: customBlockEditor,
         }),
+        defineField({name: 'enableTextSizeFineTune', title: 'Fine-tune text size per device', type: 'boolean', initialValue: false, description: 'Overrides the size of the consent text (whatever text style is used). Empty fields fall back (small → big → desktop).'}),
+        ...breakpoints.map((bp) => defineField({name: `textSize${bp.key}`, title: `Text size - ${bp.title}`, type: 'string', description: 'e.g. 1.5rem', hidden: ({parent}) => !parent?.enableTextSizeFineTune})),
         defineField({
             name: 'surfacePadding',
             title: 'Surface Padding',
