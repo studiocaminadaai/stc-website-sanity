@@ -483,6 +483,22 @@ export default defineType({
       hidden: ({parent}) => !parent?.enableImageSequence,
     }),
     defineField({
+      name: 'sequenceScrollScreensTouch',
+      title: 'Scroll Length: Phones & Tablets (screen heights)',
+      type: 'number',
+      fieldset: 'sequencePlay',
+      description: 'How far the finger scrolls to play the whole sequence, in screen heights. 1 = one full screen, 0.7 = shorter (more sensitive). Empty = default (about 10 px per frame).',
+      validation: (Rule) => Rule.min(0.2).max(10),
+    }),
+    defineField({
+      name: 'sequenceScrollScreensDesktop',
+      title: 'Scroll Length: Laptop & Desktop (screen heights)',
+      type: 'number',
+      fieldset: 'sequencePlay',
+      description: 'Same for mouse / trackpad scrolling. Empty = default (30 px per frame).',
+      validation: (Rule) => Rule.min(0.2).max(10),
+    }),
+    defineField({
       name: 'sequenceMobileAutoplay',
       title: 'Force Auto-Play on Mobile/Tablet',
       type: 'boolean',
